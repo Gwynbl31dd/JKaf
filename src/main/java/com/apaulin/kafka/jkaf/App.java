@@ -131,7 +131,7 @@ public class App
     	System.out.println("*************** JKAF v0.0.1 *********************************************************");
     	System.out.println("Kafka client CLI");
     	System.out.println("*************** USAGE ***************************************************************");
-    	System.out.println("java -jar jkaf-0.0.1-full.jar <mode> [<option> <arg>] ");
+    	System.out.println("java -jar jkaf-0.0.1.jar <mode> [<option> <arg>] ");
     	System.out.println("*************** MODES ***************************************************************");
     	System.out.println("-c,--consume : Consumer mode.");
     	System.out.println("-p,--produce : Producer mode.");
