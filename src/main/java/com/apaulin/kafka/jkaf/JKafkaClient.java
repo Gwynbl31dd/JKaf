@@ -12,6 +12,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import java.time.format.DateTimeFormatter;  
+import java.time.LocalDateTime;  
 
 /**
  * @author Anthony Paulin
@@ -56,6 +58,7 @@ public class JKafkaClient {
 			ConsumerRecords<String, String> records = consumer.poll(100);
 			for (ConsumerRecord<String, String> record : records) {
 				System.out.println("***");
+				System.out.println("Receive message at "+getDate()+ " From "+record.topic());
 				System.out.println("offset = " + record.offset() + ", key = " + record.key());
 				System.out.println(record.value());
 			}
@@ -84,5 +87,11 @@ public class JKafkaClient {
 			 producer.send(new ProducerRecord<String, String>(topics.get(i), key,value));
 		 }
 		 producer.close();
+	}
+	
+	private static String getDate() {
+		 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+		 LocalDateTime now = LocalDateTime.now();  
+		 return dtf.format(now);  
 	}
 }
