@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.apaulin.kafka.jkaf;
 
 import java.util.ArrayList;
@@ -49,8 +46,6 @@ public class JKafkaClient {
 		setKeyStore(keystoreLocation, keystorePassword);
 		consume(server, groupId, commitInterval, topics);
 	}
-	
-	
 
 	/**
 	 * consume with a keystore and a password authentication
@@ -103,7 +98,6 @@ public class JKafkaClient {
 		System.out.println("[+] Done");
 		@SuppressWarnings("resource")
 		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-
 		consumer.subscribe(topics);
 		System.out.println("[+] Start reading data...");
 		System.out.println("[+] CTRL + C to exit");
@@ -118,7 +112,29 @@ public class JKafkaClient {
 			}
 		}
 	}
-	
+
+	/**
+	 * Produce with SSL with a auth password
+	 * 
+	 * @param server
+	 *            Server address host:port
+	 * @param topics
+	 *            Topic list separated by comma
+	 * @param key
+	 *            Key of the message
+	 * @param value
+	 *            Value of the message
+	 * @param truststoreLocation
+	 *            Path of the Java trustore
+	 * @param trustorePassword
+	 *            Password of the trustore
+	 * @param keystoreLocation
+	 *            Path of the Java keystore
+	 * @param keystorePassword
+	 *            Password of the keystore
+	 * @param keyPasswordConfig
+	 *            Password config
+	 */
 	public static void produce(String server, ArrayList<String> topics, String key, String value,
 			String truststoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword,
 			String keyPasswordConfig) {
@@ -127,7 +143,27 @@ public class JKafkaClient {
 		setSslAuth(keyPasswordConfig);
 		produce(server, topics, key, value);
 	}
-	
+
+	/**
+	 * Produce with SSL
+	 * 
+	 * @param server
+	 *            Server address host:port
+	 * @param topics
+	 *            Topic list separated by comma
+	 * @param key
+	 *            Key of the message
+	 * @param value
+	 *            Value of the message
+	 * @param truststoreLocation
+	 *            Path of the Java trustore
+	 * @param trustorePassword
+	 *            Password of the trustore
+	 * @param keystoreLocation
+	 *            Path of the Java keystore
+	 * @param keystorePassword
+	 *            Password of the keystore
+	 */
 	public static void produce(String server, ArrayList<String> topics, String key, String value,
 			String trustoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword) {
 		setSslEncryption(trustoreLocation, trustorePassword);
@@ -158,7 +194,7 @@ public class JKafkaClient {
 		props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 		Producer<String, String> producer = new KafkaProducer<>(props);
 		for (int i = 0; i < topics.size(); i++) {
-			System.out.println("[+] Producing to topic "+topics.get(i));
+			System.out.println("[+] Producing to topic " + topics.get(i));
 			producer.send(new ProducerRecord<String, String>(topics.get(i), key, value));
 			System.out.println("[+] Done");
 		}
@@ -181,6 +217,12 @@ public class JKafkaClient {
 		props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, truststorePassword);
 	}
 
+	/**
+	 * Set the keystore properties
+	 * 
+	 * @param keystoreLocation Path to the keystore
+	 * @param keystorePassword Password of the keystore
+	 */
 	private static void setKeyStore(String keystoreLocation, String keystorePassword) {
 		System.out.println("[+] Set SSL KeyStore...");
 		props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, keystoreLocation);

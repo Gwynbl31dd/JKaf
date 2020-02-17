@@ -34,7 +34,7 @@ java -jar jkaf-0.1.0.jar <mode> [<option> <arg>]
 * -kp,--keystore-password <password>: keystore password.
 * -a,--authentication <password> : Use SSL password authentication. E.g -a mysslpasword 
 
-## Example
+## Examples
 
 ### Consumer
 
@@ -54,7 +54,7 @@ java -jar jkaf-0.1.0.jar -p -s 127.0.0.1:9092 -t topic1 -f test.txt -k key1
 ### SSL 
 
 ```sh
-java -jarjkaf-0.1.0.jar -p -s 127.0.0.1:9092 -g mygroupe -t topic1 -m {test:"value"} -T /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.131-11.b12.el7.x86_64/jre/lib/security/cacerts -K cert/server.keystore -tp changeit -kp changeit
+java -jar jkaf-0.1.0.jar -p -s 127.0.0.1:9092 -g mygroupe -t topic1 -m {test:"value"} -T /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.131-11.b12.el7.x86_64/jre/lib/security/cacerts -K cert/server.keystore -tp changeit -kp changeit
 
 ```
 
@@ -62,12 +62,17 @@ java -jarjkaf-0.1.0.jar -p -s 127.0.0.1:9092 -g mygroupe -t topic1 -m {test:"val
 
 Java uses its own keystore and trustore to manage the certificate
 
-* To import a key to the keystore
+To import a key to the keystore :
+
+* Step 1
 
 ```sh
-//Step 1
 openssl pkcs12 -export -in server.crt -inkey server.key   -out server.p12 -name [some-alias]  -CAfile ca.crt -caname root
-//Step 2
+```
+
+* Step 2
+
+```sh
 keytool -importkeystore -deststorepass [changeit] -destkeypass [changeit] -destkeystore server.keystore -srckeystore server.p12 -srcstoretype PKCS12 -srcstorepass some-password  -alias [some-alias]
 ```
 
@@ -76,6 +81,7 @@ keytool -importkeystore -deststorepass [changeit] -destkeypass [changeit] -destk
 ```sh
 keytool -import -alias myalias -file public.cert -storetype JKS -keystore server.truststore
 ```
+
 ## Maintainer
 
 Anthony Paulin <paulin.anthony@gmail.com>
