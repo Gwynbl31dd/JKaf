@@ -41,10 +41,10 @@ public class JKafkaClient {
 	 *            Password of the keystore
 	 */
 	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,
-			String trustoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword) {
+			String trustoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword,int messageToRead) {
 		setSslEncryption(trustoreLocation, trustorePassword);
 		setKeyStore(keystoreLocation, keystorePassword);
-		consume(server, groupId, commitInterval, topics);
+		consume(server, groupId, commitInterval, topics,messageToRead);
 	}
 
 	/**
@@ -60,11 +60,11 @@ public class JKafkaClient {
 	 */
 	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,
 			String truststoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword,
-			String keyPasswordConfig) {
+			String keyPasswordConfig,int messageToRead) {
 		setSslEncryption(truststoreLocation, trustorePassword);
 		setKeyStore(keystoreLocation, keystorePassword);
 		setSslAuth(keyPasswordConfig);
-		consume(server, groupId, commitInterval, topics);
+		consume(server, groupId, commitInterval, topics,messageToRead);
 	}
 
 	/**
@@ -79,7 +79,10 @@ public class JKafkaClient {
 	 * @param topics
 	 *            Topics list separated by a comma
 	 */
-	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics) {
+	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,int messageToRead) {
+		/**
+		 * TODO - Add timeout - Add offset selection
+		 */
 		if (server == null) {
 			System.out.println("server (-s) cannot be null");
 		}
@@ -101,6 +104,7 @@ public class JKafkaClient {
 		consumer.subscribe(topics);
 		System.out.println("[+] Start reading data...");
 		System.out.println("[+] CTRL + C to exit");
+		int indMessages = 0;//Number of message to read
 		while (true) {
 			@SuppressWarnings("deprecation")
 			ConsumerRecords<String, String> records = consumer.poll(1000);
@@ -109,6 +113,11 @@ public class JKafkaClient {
 				System.out.println("Receive message at " + getDate() + " From " + record.topic());
 				System.out.println("offset = " + record.offset() + ", key = " + record.key());
 				System.out.println(record.value());
+				System.out.println("Messages received ="+(++indMessages));
+				System.out.println("message to stop = "+messageToRead);
+				if(indMessages == messageToRead) {
+					System.exit(0);
+				}
 			}
 		}
 	}
