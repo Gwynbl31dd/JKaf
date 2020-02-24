@@ -5,11 +5,11 @@
 
 	<groupId>com.apaulin.kafka</groupId>
 	<artifactId>jkaf</artifactId>
-	<version>0.2.0-DEV</version>
+	<version>0.2.1</version>
 	<packaging>jar</packaging>
 
 	<name>jkaf</name>
-	<url>http://maven.apache.org</url>
+	<url>https://github.com/Gwynbl31dd/JKaf</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -84,4 +84,8 @@
 		</dependency>
 
 	</dependencies>
+	<organization>
+		<name>apaulin</name>
+	</organization>
+	<description>Kafka  Java CLI tool </description>
 </project>

@@ -22,6 +22,7 @@ public class App {
 	private static boolean sslEnc = false;
 	private static boolean sslAuth = false;
 	private static boolean install = false;
+	private static boolean earliest = false;
 	private static String server = null;
 	private static String groupId = null;
 	private static int commitInterval = 1000;
@@ -34,6 +35,7 @@ public class App {
 	private static String keystorePassword = "";
 	private static String password = null;
 	private static int numberMessages = -1;
+
 
 	/**
 	 * Main method
@@ -66,12 +68,12 @@ public class App {
 			try {
 				if (sslAuth == true) {
 					JKafkaClient.consume(server, groupId, commitInterval, topics, thruststore, thruststorePassword,
-							keystore, keystorePassword, password, numberMessages);
+							keystore, keystorePassword, password, numberMessages,earliest);
 				} else if (sslEnc == true) {
 					JKafkaClient.consume(server, groupId, commitInterval, topics, thruststore, thruststorePassword,
-							keystore, keystorePassword, numberMessages);
+							keystore, keystorePassword, numberMessages,earliest);
 				} else {
-					JKafkaClient.consume(server, groupId, commitInterval, topics, numberMessages);
+					JKafkaClient.consume(server, groupId, commitInterval, topics, numberMessages,earliest);
 				}
 			} catch (NullPointerException e) {
 				System.out.println("[-] Wrong arguments...");
@@ -168,6 +170,9 @@ public class App {
 					System.out.println("[-] -x must be an integer...");
 				}
 			}
+			else if (args[i].compareTo("-e") == 0 || args[i].compareTo("--earliest") == 0) {
+				earliest = true;
+			}
 		}
 	}
 
@@ -192,14 +197,12 @@ public class App {
 		System.out.println("-m,--message : Value of your message. E.g -m \"{\\\"test\\\":\\\"test\\\"}\"");
 		System.out.println("-f,--file : Use a file instead. E.g -f /tmp/myfile.json");
 		System.out.println("-x,--number : For the consumer only, stop after X message. E.g -x 5");
+		System.out.println("-e,--earliest : Read from the earliest message not commited");
 		System.out.println("*************** SECURITY OPTIONS");
 		System.out.println("-T,--truststore : truststore location.");
 		System.out.println("-tp,--truststore-password : Use SSL encryption. E.g -P mypassword1234");
 		System.out.println("-K,--keystore : keystore location.");
 		System.out.println("-kp,--keystore-password : keystore password.");
-		System.out.println("NOTE : You can create a jks (java key store) by following this tutorial :");
-		System.out.println(
-				" - https://blogs.oracle.com/blogbypuneeth/steps-to-create-a-jks-keystore-using-key-and-crt-files");
 		System.out.println("-a,--authentication : Use SSL password authentication. E.g -a mysslpasword ");
 		System.out.println("*************** UTILITIES");
 		System.out.println("-i,--install : Install a certificate .Usage: <host>[:port] [passphrase] ");

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -41,10 +42,10 @@ public class JKafkaClient {
 	 *            Password of the keystore
 	 */
 	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,
-			String trustoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword,int messageToRead) {
+			String trustoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword,int messageToRead,boolean earliest) {
 		setSslEncryption(trustoreLocation, trustorePassword);
 		setKeyStore(keystoreLocation, keystorePassword);
-		consume(server, groupId, commitInterval, topics,messageToRead);
+		consume(server, groupId, commitInterval, topics,messageToRead,earliest);
 	}
 
 	/**
@@ -57,16 +58,22 @@ public class JKafkaClient {
 	 * @param keystoreLocation
 	 * @param keystorePassword
 	 * @param keyPasswordConfig
+	 * @param messageToRead 
+	 * 			  Limit how many messages are displayed 
+	 * @param earliest
+	 * 			  Display from the earliest message
 	 */
 	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,
 			String truststoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword,
-			String keyPasswordConfig,int messageToRead) {
+			String keyPasswordConfig,int messageToRead,boolean earliest) {
 		setSslEncryption(truststoreLocation, trustorePassword);
 		setKeyStore(keystoreLocation, keystorePassword);
 		setSslAuth(keyPasswordConfig);
-		consume(server, groupId, commitInterval, topics,messageToRead);
+		consume(server, groupId, commitInterval, topics,messageToRead,earliest);
 	}
 
+	
+	
 	/**
 	 * Consumer
 	 * 
@@ -78,11 +85,12 @@ public class JKafkaClient {
 	 *            Commit interval
 	 * @param topics
 	 *            Topics list separated by a comma
+	 * @param messageToRead 
+	 * 			  Limit how many messages are displayed 
+	 * @param earliest
+	 * 			  Display from the earliest message
 	 */
-	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,int messageToRead) {
-		/**
-		 * TODO - Add timeout - Add offset selection
-		 */
+	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,int messageToRead,boolean earliest) {
 		if (server == null) {
 			System.out.println("server (-s) cannot be null");
 		}
@@ -98,6 +106,11 @@ public class JKafkaClient {
 		props.put("auto.commit.interval.ms", commitInterval);
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+		
+		if(earliest == true) {
+			props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+		}
+		
 		System.out.println("[+] Done");
 		@SuppressWarnings("resource")
 		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
@@ -113,8 +126,6 @@ public class JKafkaClient {
 				System.out.println("Receive message at " + getDate() + " From " + record.topic());
 				System.out.println("offset = " + record.offset() + ", key = " + record.key());
 				System.out.println(record.value());
-				System.out.println("Messages received ="+(++indMessages));
-				System.out.println("message to stop = "+messageToRead);
 				if(indMessages == messageToRead) {
 					System.exit(0);
 				}
