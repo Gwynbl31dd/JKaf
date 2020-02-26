@@ -180,7 +180,7 @@ public class App {
 	 * Display the help message
 	 */
 	private static void displayHelp() {
-		System.out.println("*************** JKAF v0.2.0");
+		System.out.println("*************** JKAF v0.2.1");
 		System.out.println("Kafka client CLI");
 		System.out.println("*************** USAGE");
 		System.out.println("java -jar jkaf-0.0.1.jar <mode> [<option> <arg>] ");
@@ -197,7 +197,7 @@ public class App {
 		System.out.println("-m,--message : Value of your message. E.g -m \"{\\\"test\\\":\\\"test\\\"}\"");
 		System.out.println("-f,--file : Use a file instead. E.g -f /tmp/myfile.json");
 		System.out.println("-x,--number : For the consumer only, stop after X message. E.g -x 5");
-		System.out.println("-e,--earliest : Read from the earliest message not commited");
+		System.out.println("-e,--earliest : Read from the earliest message not committed");
 		System.out.println("*************** SECURITY OPTIONS");
 		System.out.println("-T,--truststore : truststore location.");
 		System.out.println("-tp,--truststore-password : Use SSL encryption. E.g -P mypassword1234");

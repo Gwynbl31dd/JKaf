@@ -25,6 +25,8 @@ java -jar jkaf-0.1.0.jar <mode> [<option> <arg>]
 * -k,--key <key>: key associate with your message.(optional) E.g -k key1
 * -m,--message <message> : Value of your message. E.g -m "{test:'test'}"
 * -f,--file <file_path> : Use a file instead. E.g -f /tmp/myfile.json
+* -x,--number <number> : For the consumer only, stop after X message. E.g -x 5")
+* -e,--earliest : Read from the earliest message not committed
 
 ### Security options
 
@@ -33,6 +35,10 @@ java -jar jkaf-0.1.0.jar <mode> [<option> <arg>]
 * -K,--keystore <path> : keystore location.
 * -kp,--keystore-password <password>: keystore password.
 * -a,--authentication <password> : Use SSL password authentication. E.g -a mysslpasword 
+
+### Extra 
+
+* -i,--install : Install a certificate .Usage: <host>[:port] [passphrase] 
 
 ## Examples
 
