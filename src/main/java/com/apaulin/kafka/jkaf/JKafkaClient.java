@@ -1,6 +1,7 @@
 package com.apaulin.kafka.jkaf;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
 
 import org.apache.kafka.clients.CommonClientConfigs;
@@ -12,6 +13,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
@@ -123,8 +126,19 @@ public class JKafkaClient {
 			ConsumerRecords<String, String> records = consumer.poll(1000);
 			for (ConsumerRecord<String, String> record : records) {
 				System.out.println("***");
+				
+				System.out.println("Headers :");
+				Headers headers = record.headers();
+				Iterator<Header> iterator = headers.iterator();
+				while(iterator.hasNext()) {
+					Header next = iterator.next();
+					System.out.println(next.key() +":"+new String(next.value())) ;
+				}
+				
 				System.out.println("Receive message at " + getDate() + " From " + record.topic());
+				
 				System.out.println("offset = " + record.offset() + ", key = " + record.key());
+				
 				System.out.println(record.value());
 				if(indMessages == messageToRead) {
 					System.exit(0);
@@ -215,7 +229,16 @@ public class JKafkaClient {
 		Producer<String, String> producer = new KafkaProducer<>(props);
 		for (int i = 0; i < topics.size(); i++) {
 			System.out.println("[+] Producing to topic " + topics.get(i));
-			producer.send(new ProducerRecord<String, String>(topics.get(i), key, value));
+			ProducerRecord<String,String> record = new ProducerRecord<String, String>(topics.get(i), key, value);
+			if(App.header == true) {
+				Headers headers = record.headers();
+				for(int ind=0;ind<App.headers.size();ind++) {
+					headers.add(App.headers.get(ind).getKey(),App.headers.get(ind).getValue().getBytes());
+				}
+				System.out.println("[+] Headers sent");
+			}
+			producer.send(record);
+			System.out.println("[+] Message sent");
 			System.out.println("[+] Done");
 		}
 		producer.close();

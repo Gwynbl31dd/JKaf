@@ -36,6 +36,8 @@ public class App {
 	private static String password = null;
 	private static int numberMessages = -1;
 
+	public static boolean header = false;
+	public static ArrayList<HeaderCli> headers = new ArrayList<HeaderCli>();
 
 	/**
 	 * Main method
@@ -173,6 +175,14 @@ public class App {
 			else if (args[i].compareTo("-e") == 0 || args[i].compareTo("--earliest") == 0) {
 				earliest = true;
 			}
+			else if(args[i].compareTo("-H") == 0 || args[i].compareTo("--header") == 0) {
+				header = true;
+				String[] pair =  args[++i].split(",");
+				for(int ind=0;ind< pair.length;ind++) {
+					String[] toSplit = pair[ind].split(":");
+					headers.add(new HeaderCli(toSplit[0],toSplit[1]));
+				}
+			}
 		}
 	}
 
@@ -180,10 +190,10 @@ public class App {
 	 * Display the help message
 	 */
 	private static void displayHelp() {
-		System.out.println("*************** JKAF v0.2.1");
+		System.out.println("*************** JKAF v0.3.0");
 		System.out.println("Kafka client CLI");
 		System.out.println("*************** USAGE");
-		System.out.println("java -jar jkaf-0.0.1.jar <mode> [<option> <arg>] ");
+		System.out.println("java -jar jkaf-0.3.0.jar <mode> [<option> <arg>] ");
 		System.out.println("*************** MODES");
 		System.out.println("-c,--consume : Consumer mode.");
 		System.out.println("-p,--produce : Producer mode.");
@@ -198,6 +208,7 @@ public class App {
 		System.out.println("-f,--file : Use a file instead. E.g -f /tmp/myfile.json");
 		System.out.println("-x,--number : For the consumer only, stop after X message. E.g -x 5");
 		System.out.println("-e,--earliest : Read from the earliest message not committed");
+		System.out.println("-H,--header : Set a custom header. E.g -H key1:value2,key2:value2");
 		System.out.println("*************** SECURITY OPTIONS");
 		System.out.println("-T,--truststore : truststore location.");
 		System.out.println("-tp,--truststore-password : Use SSL encryption. E.g -P mypassword1234");

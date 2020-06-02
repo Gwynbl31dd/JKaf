@@ -5,7 +5,7 @@
 
 	<groupId>com.apaulin.kafka</groupId>
 	<artifactId>jkaf</artifactId>
-	<version>0.2.1</version>
+	<version>0.3.0</version>
 	<packaging>jar</packaging>
 
 	<name>jkaf</name>
