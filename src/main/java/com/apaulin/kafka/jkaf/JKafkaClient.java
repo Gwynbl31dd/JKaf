@@ -1,9 +1,11 @@
 package com.apaulin.kafka.jkaf;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
 
 import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -11,6 +13,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.SslConfigs;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
@@ -41,10 +45,10 @@ public class JKafkaClient {
 	 *            Password of the keystore
 	 */
 	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,
-			String trustoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword) {
+			String trustoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword,int messageToRead,boolean earliest) {
 		setSslEncryption(trustoreLocation, trustorePassword);
 		setKeyStore(keystoreLocation, keystorePassword);
-		consume(server, groupId, commitInterval, topics);
+		consume(server, groupId, commitInterval, topics,messageToRead,earliest);
 	}
 
 	/**
@@ -57,16 +61,22 @@ public class JKafkaClient {
 	 * @param keystoreLocation
 	 * @param keystorePassword
 	 * @param keyPasswordConfig
+	 * @param messageToRead 
+	 * 			  Limit how many messages are displayed 
+	 * @param earliest
+	 * 			  Display from the earliest message
 	 */
 	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,
 			String truststoreLocation, String trustorePassword, String keystoreLocation, String keystorePassword,
-			String keyPasswordConfig) {
+			String keyPasswordConfig,int messageToRead,boolean earliest) {
 		setSslEncryption(truststoreLocation, trustorePassword);
 		setKeyStore(keystoreLocation, keystorePassword);
 		setSslAuth(keyPasswordConfig);
-		consume(server, groupId, commitInterval, topics);
+		consume(server, groupId, commitInterval, topics,messageToRead,earliest);
 	}
 
+	
+	
 	/**
 	 * Consumer
 	 * 
@@ -78,8 +88,12 @@ public class JKafkaClient {
 	 *            Commit interval
 	 * @param topics
 	 *            Topics list separated by a comma
+	 * @param messageToRead 
+	 * 			  Limit how many messages are displayed 
+	 * @param earliest
+	 * 			  Display from the earliest message
 	 */
-	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics) {
+	public static void consume(String server, String groupId, int commitInterval, ArrayList<String> topics,int messageToRead,boolean earliest) {
 		if (server == null) {
 			System.out.println("server (-s) cannot be null");
 		}
@@ -95,20 +109,40 @@ public class JKafkaClient {
 		props.put("auto.commit.interval.ms", commitInterval);
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+		
+		if(earliest == true) {
+			props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+		}
+		
 		System.out.println("[+] Done");
 		@SuppressWarnings("resource")
 		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 		consumer.subscribe(topics);
 		System.out.println("[+] Start reading data...");
 		System.out.println("[+] CTRL + C to exit");
+		int indMessages = 0;//Number of message to read
 		while (true) {
 			@SuppressWarnings("deprecation")
 			ConsumerRecords<String, String> records = consumer.poll(1000);
 			for (ConsumerRecord<String, String> record : records) {
 				System.out.println("***");
+				
+				System.out.println("Headers :");
+				Headers headers = record.headers();
+				Iterator<Header> iterator = headers.iterator();
+				while(iterator.hasNext()) {
+					Header next = iterator.next();
+					System.out.println(next.key() +":"+new String(next.value())) ;
+				}
+				
 				System.out.println("Receive message at " + getDate() + " From " + record.topic());
+				
 				System.out.println("offset = " + record.offset() + ", key = " + record.key());
+				
 				System.out.println(record.value());
+				if(indMessages == messageToRead) {
+					System.exit(0);
+				}
 			}
 		}
 	}
@@ -195,7 +229,16 @@ public class JKafkaClient {
 		Producer<String, String> producer = new KafkaProducer<>(props);
 		for (int i = 0; i < topics.size(); i++) {
 			System.out.println("[+] Producing to topic " + topics.get(i));
-			producer.send(new ProducerRecord<String, String>(topics.get(i), key, value));
+			ProducerRecord<String,String> record = new ProducerRecord<String, String>(topics.get(i), key, value);
+			if(App.header == true) {
+				Headers headers = record.headers();
+				for(int ind=0;ind<App.headers.size();ind++) {
+					headers.add(App.headers.get(ind).getKey(),App.headers.get(ind).getValue().getBytes());
+				}
+				System.out.println("[+] Headers sent");
+			}
+			producer.send(record);
+			System.out.println("[+] Message sent");
 			System.out.println("[+] Done");
 		}
 		producer.close();
